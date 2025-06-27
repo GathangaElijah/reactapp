@@ -1,3 +1,4 @@
+// This functions renders all the tasks
 function Todo(props){
     return (
         <li className="todo stack-small">
