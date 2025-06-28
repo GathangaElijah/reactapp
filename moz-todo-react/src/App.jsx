@@ -4,12 +4,19 @@ import Todo from "./components/Todo";
 import { useState } from "react";
 import { nanoid } from "nanoid";
 // Filter buttons
-const FILTER_TYPE = ["All", "Active", "Completed"]
+const FILTER_MAP = {
+  All: () => true,
+  Active: (task) => !task.completed,
+  Completed: (task) => task.completed,
+};
+const FILTER_NAMES = Object.keys(FILTER_MAP);
 
 
 function App(props) {
   // Tasks hook
   const[tasks, setTasks] = useState(props.tasks);
+  // Filter Hook
+  const [filter, setFilter] = useState("All")
 
   function toggleTaskCompleted(id) {
     const updatedTasks = tasks.map((task) => {
@@ -22,20 +29,54 @@ function App(props) {
   }
 
   // Tasklist
-  const taskList = tasks?.map((task) => (
+  const taskList = tasks
+  .filter(FILTER_MAP[filter])
+  .map((task) => (
     <Todo 
     id={task.id} 
     name={task.name}
     completed={task.completed} 
     key={task.id}
     toggleTaskCompleted={toggleTaskCompleted}
+    deleteTask={deleteTask}
+    editTask={editTask}
     />
   ) );
+
+  // Filtering tasks
+  const filterList = FILTER_NAMES.map((name) => (
+    <FilterButton 
+    key={name} 
+    name={name} 
+    isPressed={name === filter}
+    setFilter={setFilter}
+    />
+  ))
 
   // Adding a task to the list from the form.
   function addTask(name) {
     const newTask = { id: `todo-${nanoid}`, name, completed: false };
     setTasks([...tasks, newTask]);
+  }
+
+  // Deleting a task
+  function deleteTask(id) {
+    const remainingTasks = tasks.filter((task) => id !== 
+    task.id);
+    setTasks(remainingTasks);
+  }
+
+  // Editing a task
+  function editTask(id, newName) {
+    const editedTasklist = tasks.map((task) => {
+      // if this task has the same ID as the edited task
+      if (id === task.id) {
+        return {...task, name: newName};
+      }
+      // Return original task if its not the edited task
+      return task;
+    });
+    setTasks(editedTasklist)
   }
 
   const tasksNoun = taskList.length !== 1 ? "tasks" : "task";
@@ -48,9 +89,7 @@ function App(props) {
       {/* Form Component */}
       <Form addTask={addTask} />
       <div className="filters btn-group stack-exception">
-        {FILTER_TYPE.map((name) => (
-          <FilterButton key={name} filterType={name} />
-        ))};
+        {filterList}
       </div>
       <h2 id="list-heading"> {headingText} </h2>
       <ul
