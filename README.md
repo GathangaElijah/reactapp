@@ -1,6 +1,7 @@
 # MyToDo App
 
-![Homepage](ReactApp_Homepage_29062025_v1.png)
+
+![Homepage](docs-images/ReactApp_Homepage_29062025_v1.png)
 
 This app is created using JavaScript React. 
 You can;
