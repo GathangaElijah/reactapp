@@ -1,8 +1,18 @@
 import Form from "./components/Form";
 import FilterButton from "./components/FilterButton";
 import Todo from "./components/Todo";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { nanoid } from "nanoid";
+
+// Ref to focus after deleting a task
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
+
 // Filter buttons
 const FILTER_MAP = {
   All: () => true,
@@ -83,6 +93,15 @@ function App(props) {
   const headingText = `${taskList.length} ${tasksNoun}
   remaining`;
   
+  const listHeadingRef = useRef(null);
+  const prevTaskLength = usePrevious(tasks.length);
+   // Focus on the heading
+  useEffect(() => {
+  if (tasks.length < prevTaskLength) {
+    listHeadingRef.current.focus();
+  }
+}, [tasks.length, prevTaskLength]);
+
   return (
     <div className="todoapp stack-large">
       <h1>TodoMatic</h1>
@@ -91,7 +110,9 @@ function App(props) {
       <div className="filters btn-group stack-exception">
         {filterList}
       </div>
-      <h2 id="list-heading"> {headingText} </h2>
+      <h2 id="list-heading" tabIndex="-1" ref={listHeadingRef}> 
+        {headingText} 
+      </h2>
       <ul
         role="list"
         className="todo-list stack-large stack-exception"
